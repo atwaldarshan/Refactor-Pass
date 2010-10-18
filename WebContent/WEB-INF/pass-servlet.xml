@@ -1,0 +1,212 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+	
+	<bean id="dataSource" class="org.springframework.jndi.JndiObjectFactoryBean">
+		<property name="resourceRef">
+			<value>false</value>
+		</property>
+		<property name="jndiName" 
+			value="java:comp/env/jdbc/PurchaseBehaviorDS"/>
+	</bean>
+	
+	
+	<bean id="urlMapping" class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping">
+		<property name="urlMap">
+			<map>
+				 <entry key="/admin/**" value="adminController"/>
+				 <entry key="/auth/**" value="authController"/> 
+				 <entry key="/batch/**" value="batchController"/> 
+				 <entry key="/data/**" value="dataController"/> 
+				 <entry key="/gadget/**" value="gadgetController"/> 
+				 <entry key="/fx2/**" value="fx2Controller"/> 
+				 <entry key="/link/**" value="linkController"/> 
+			 </map>
+		</property>
+    </bean>
+    
+    				<!-- DataObject Defination is start -->
+     <bean name="pPMemberActivityDataObject" class="com.payparade.dataobject.PPMemberActivityDataObject"></bean>
+	
+	<bean name="ppMemberSessionDataObject" class="com.payparade.dataobject.PPMemberSessionDataObject"></bean>
+	
+	 <bean name="ppIdDataObject" class="com.payparade.dataobject.PPIdDataObject"></bean>
+	 
+	 <bean name="pPPartnerNetworkDataObject" class="com.payparade.dataobject.PPPartnerNetworkDataObject"></bean>
+	  
+  	 <bean name="pPConnectionDataObject" class="com.payparade.dataobject.PPConnectionDataObject"></bean>
+  	 
+  	 <bean name="ppMemberNetworkDataObject" class="com.payparade.dataobject.PPMemberNetworkDataObject"></bean>
+  	 <bean name="ppMemberShipDataObject" class ="com.payparade.dataobject.PPMemberShipDataObject"/>
+  	  <bean name ="ppShareLinkDataObject" class ="com.payparade.dataobject.PPShareLinkDataObject"></bean>
+  	  
+  	  <bean name="ppOpsSnapShotDataObject" class="com.payparade.dataobject.PPOpsSnapShotDataObject"></bean>
+  	 		<!-- DataObject Defination is END -->
+  	
+  			<!-- Service Defination is start --> 
+  	
+  	<bean name="adminServiceImpl" class = "com.payparade.service.AdminServiceImpl">
+    	<property name="dataSource">
+    		<ref bean="dataSource"/>
+    	</property>
+    </bean>		
+  			
+    <bean name="authServiceImpl" class = "com.payparade.service.AuthServiceImpl">
+    	<property name="dataSource">
+    		<ref bean="dataSource"/>
+    	</property>
+    </bean>
+    
+      <bean name="batchServiceImpl" class = "com.payparade.service.BatchServiceImpl">
+    	<property name="dataSource">
+    		<ref bean="dataSource"/>
+    	</property>
+    </bean>
+    
+     <bean name="dataServiceImpl" class = "com.payparade.service.DataServiceImpl">
+    	<property name="dataSource">
+    		<ref bean="dataSource"/>
+    	</property>
+    </bean>
+    
+     <bean name="gadgetServiceImpl" class = "com.payparade.service.GadgetServiceImpl" init-method = "initializeGadgetList">
+    	<property name="dataSource">
+    		<ref bean="dataSource"/>
+    	</property>
+    </bean>
+    
+    <bean name="geo" class = "com.payparade.util.Geo">
+    	<property name="dataSource">
+    		<ref bean="dataSource"/>
+    	</property>
+    </bean>
+    
+     <bean name="linkServiceImpl" class = "com.payparade.service.LinkServiceImpl">
+    	<property name="dataSource">
+    		<ref bean="dataSource"/>
+    	</property>
+    </bean>
+    
+    <bean name="partnerNetworkServiceImpl" class = "com.payparade.service.PartnerNetworkServiceImpl" init-method = "init">
+    	<property name="dataSource">
+    		<ref bean="dataSource"/>
+    	</property>
+    </bean>
+   
+    <bean name="passServiceImpl" class = "com.payparade.service.PassServiceImpl">
+    	<property name="dataSource">
+    		<ref bean="dataSource"/>
+    	</property>
+    </bean>
+    
+    <bean name="signingSecretServiceImpl" class = "com.payparade.service.SigningSecretServiceImpl" init-method="init">
+    	<property name="dataSource">
+    		<ref bean="dataSource"/>
+    	</property>
+    </bean>
+    
+    		<!-- Service Defination is END  -->
+    		
+    		<!-- Controller Defination is start -->		
+  
+  	 <bean name ="adminController" class="com.payparade.controller.AdminController" parent="passController" init-method = "init">
+   		
+   	<property name = "adminService">
+   		<ref bean = "adminServiceImpl"/>
+   	</property>
+   	<property name ="ppOpsSnapShotDataObject">
+   		<ref bean = "ppOpsSnapShotDataObject"/>
+   	</property>	
+   </bean>
+  
+   <bean name ="authController" class="com.payparade.controller.AuthController" parent="passController" init-method = "init">
+   	<property name = "ppMemberNetworkDataObject">
+   		<ref bean = "ppMemberNetworkDataObject"/>
+   	</property>	
+   	<property name = "ppMemberShipDataObject">
+   		<ref bean = "ppMemberShipDataObject"/>
+   	</property>	
+   	<property name = "authService">
+   		<ref bean = "authServiceImpl"/>
+   	</property>
+   	<property name="open_">
+   		<value>true</value>
+   	</property>	
+   </bean>
+   
+	<bean name ="batchController" class="com.payparade.controller.BatchController" parent="passController" init-method = "init">
+		<property name = "batchService">
+			<ref bean = "batchServiceImpl"/>
+		</property>	
+   </bean>
+  
+   <bean name ="dataController" class="com.payparade.controller.DataController" parent="passController" init-method = "init">
+   	<property name = "dataService">
+   		<ref bean = "dataServiceImpl"/>
+   	</property>
+   	<property name = "ppConnectionDataObject">
+   		<ref bean = "pPConnectionDataObject"/>
+   	</property>
+   </bean>
+  	
+  	<bean name = "fx2Controller" class ="com.payparade.controller.Fx2Controller" parent="passController" init-method = "init">
+    </bean>
+  	
+   <bean name ="gadgetController" class="com.payparade.controller.GadgetController" parent="passController" init-method = "init">
+   		<property name ="ppShareLinkDataObject">
+   			<ref bean ="ppShareLinkDataObject"/>
+   		</property>	
+   		<property name = "gadgetService">
+   			<ref bean ="gadgetServiceImpl"/>
+   		</property>	
+   </bean>
+   
+    <bean name ="linkController" class="com.payparade.controller.LinkController" parent="passController" init-method = "init">
+   		<property name ="linkService">
+   			<ref bean ="linkServiceImpl"/>
+   		</property>	
+   		<property name ="ppShareLinkDataObject">
+   			<ref bean ="ppShareLinkDataObject"/>
+   		</property>	
+   </bean>
+   
+     <bean name ="passController" class="com.payparade.controller.PassController" abstract="true" init-method = "init">
+    	<property name="passService">
+		   	<ref bean="passServiceImpl"/>
+    	</property>
+    	<property name="partnerNetworkService">
+		   	<ref bean="partnerNetworkServiceImpl"/>
+    	</property>
+    	<property name="ppIdDataObject">
+    		<ref bean="ppIdDataObject"/>
+    	</property>
+    	<property name="pPMemberActivityDataObject">
+    		<ref bean="pPMemberActivityDataObject"/>
+    	</property>
+    	<property name="signingSecretService">
+    		<ref bean="signingSecretServiceImpl"/>
+    	</property>	
+    	<property name="ppMemberSessionDataObject">
+    		<ref bean="ppMemberSessionDataObject"/>
+    	</property>	
+    	<property name = "geo">
+    		<ref bean="geo"/>
+    	</property>
+    	<property name="version_">
+    		<value>Version 2 2010/10/01 15:43</value>
+    	</property>	
+    </bean>
+    
+    
+   
+   			<!-- Controller Defination is END -->		
+  
+  
+   
+   
+   
+   
+   
+	
+</beans>
