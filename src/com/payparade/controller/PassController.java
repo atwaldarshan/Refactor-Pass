@@ -82,7 +82,7 @@ public abstract class PassController extends AbstractController {
 	private PPMemberSessionDataObject ppMemberSessionDataObject;
 	private PartnerNetworkService partnerNetworkService;
 	protected static Map<String, String> secrets_ = new HashMap<String, String>();
-	protected static String hostname_ = "api.payparade.net";
+	protected static String hostname_ = "";
 
 	String controllerName = "PassServlet";
 
@@ -158,11 +158,12 @@ public abstract class PassController extends AbstractController {
 			logger.info("Controller Name is---" + controllerName);
 			logger.info("URL Path is:::" + uri.getPath());
 			logger.info("request.getRequestURI():::"+request.getRequestURI());
-			logger.info("Local Address is:::"+request.getLocalAddr());
+			/*logger.info("Local Address is:::"+request.getLocalAddr());
 			logger.info("Local Name is:::"+request.getLocalName());
-			logger.info("Remote Address is:::"+request.getRemoteAddr());
+			
 			logger.info("Remote Host is:::"+request.getRemoteHost());
 			logger.info("Remote User is:::"+request.getRemoteUser());
+			*/
 			}
 			out = response.getWriter();
 			String requestType = request.getMethod();
@@ -186,11 +187,24 @@ public abstract class PassController extends AbstractController {
 				setPartnerCode(request, StringUtils
 						.getPartnerCode(getPartnerHost(request)));
 				
-				String ip = ((ServletRequestAttributes) RequestContextHolder
+				/*String ip = ((ServletRequestAttributes) RequestContextHolder
 						.currentRequestAttributes()).getRequest()
 						.getRemoteAddr();
 				logger.info("Remote Address is:::" + ip);
-			
+				*/
+				String ip = null;
+				  String xfor = request.getHeader("x-forwarded-for") ;
+				  if ( xfor != null ) {
+					  if ( xfor.contains("," ) ) {
+						  String[] ips = xfor.split(",") ;
+						  if ( ips.length > 0 )
+							  ip = ips[0] ;
+						  }
+					  else
+						  ip = xfor ;					
+					  }
+				  
+				logger.info("header:x-forwarded-for::"+ip);
 				setCustomerIp(request, ip);
 				logger.info("value of getPPId(request)::" + getPPId(request));
 				logger.info("ignore_.get(resourceString):::--->"
@@ -396,11 +410,13 @@ public abstract class PassController extends AbstractController {
 				if (request.getRequestURI().lastIndexOf("xd_receiver.htm") != -1) {
 					getxdr(out);
 				} else {
+					//Update pp_member_session table
 					get(request, response, out, resourceString, isSigned,
 							myCookies, getPartnerCode(request),
 							getPartnerHost(request));
 				}
 			} else if (requestType.equalsIgnoreCase("post")) {
+				//Update pp_member_session table
 				post(request, response, out, resourceString, isSigned,
 						myCookies, getPartnerCode(request));
 			}
